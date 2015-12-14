@@ -28,12 +28,6 @@ const apiCheck = function(response) {
     }
 };
 
-const getFileName = function(fileName) {
-    if (fs.existsSync(fileName)) {
-
-    }
-};
-
 slackClient.api('auth.test', function(err, response) {
     apiCheck(response);
 
