@@ -40,7 +40,6 @@ slackClient.api('auth.test', function(err, response) {
                 return;
             }
 
-            console.log(file);
             download(
                 file.url_download,
                 process.env.DOWNLOAD_DIR + "/" + file.id + '_' + file.name,
