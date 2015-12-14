@@ -1,6 +1,7 @@
 require('dotenv').load();
 
-if (process.env.API_TOKEN === undefined) {
+if ((process.env.API_TOKEN === undefined || process.env.API_TOKEN == '')
+    || (process.env.DOWNLOAD_DIR === undefined || process.env.DOWNLOAD_DIR == '')) {
     console.error("Must set API_TOKEN in .env");
     process.exit(1);
 }
@@ -39,7 +40,7 @@ slackClient.api('auth.test', function(err, response) {
                 file.url_download,
                 process.env.DOWNLOAD_DIR + "/" + file.name,
                 function() {
-                    console.log("Finished downloading" + file.name + ' now deleting');
+                    console.log("Finished downloading " + file.name + ' now deleting');
                     slackClient.api('files.delete?file=' + file.id, function(err, response) {
                         if (response.ok == true) {
                             console.log('Deleted ' + file.name);
