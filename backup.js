@@ -36,13 +36,17 @@ slackClient.api('auth.test', function(err, response) {
 
         response.files.forEach(function(file) {
             console.log("Downloading " + file.name);
+            if (file.url_download == undefined || file.url_download.match(/gist/)) {
+                return;
+            }
+
             download(
                 file.url_download,
                 process.env.DOWNLOAD_DIR + "/" + file.name,
                 function() {
                     console.log("Finished downloading " + file.name + ' now deleting');
                     slackClient.api('files.delete?file=' + file.id, function(err, response) {
-                        if (response.ok == true) {
+                        if (response.ok === true) {
                             console.log('Deleted ' + file.name);
                         } else {
                             console.error("Could not delete " + file.name);
