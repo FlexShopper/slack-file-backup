@@ -28,6 +28,12 @@ const apiCheck = function(response) {
     }
 };
 
+const getFileName = function(fileName) {
+    if (fs.existsSync(fileName)) {
+
+    }
+};
+
 slackClient.api('auth.test', function(err, response) {
     apiCheck(response);
 
@@ -40,11 +46,11 @@ slackClient.api('auth.test', function(err, response) {
                 return;
             }
 
+            console.log(file);
             download(
                 file.url_download,
-                process.env.DOWNLOAD_DIR + "/" + file.name,
+                process.env.DOWNLOAD_DIR + "/" + file.id + '_' + file.name,
                 function() {
-                    console.log("Finished downloading " + file.name + ' now deleting');
                     slackClient.api('files.delete?file=' + file.id, function(err, response) {
                         if (response.ok === true) {
                             console.log('Deleted ' + file.name);
