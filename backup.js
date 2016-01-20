@@ -10,15 +10,27 @@ const Slack       = require('slack-node');
 const http        = require('https');
 const fs          = require('fs');
 const slackClient = new Slack(process.env.API_TOKEN);
+const url         = require('url');
 
-const download = function(url, dest, cb) {
+const download = function(urlString, dest, cb) {
     var file = fs.createWriteStream(dest);
-    http.get(url, function(response) {
-        response.pipe(file);
-        file.on('finish', function() {
-            file.close(cb);
-        });
-    }) ;
+    var urlComponents = url.parse(urlString);
+    http.get(
+        {
+            hostname: urlComponents.hostname,
+            port: 443,
+            path: urlComponents.path,
+            headers: {
+                Authorization: 'Bearer ' + process.env.API_TOKEN
+            }
+        }, 
+        function(response) {
+            response.pipe(file);
+            file.on('finish', function() {
+                file.close(cb);
+            });
+        }
+    );
 };
 
 const apiCheck = function(response) {
@@ -35,13 +47,13 @@ slackClient.api('auth.test', function(err, response) {
         apiCheck(response);
 
         response.files.forEach(function(file) {
-            console.log("Downloading " + file.name);
-            if (file.url_download == undefined || file.url_download.match(/gist/)) {
+            if (file.url_private_download == undefined || file.url_private_download.match(/gist/)) {
                 return;
             }
 
+            console.log("Downloading " + file.name);
             download(
-                file.url_download,
+                file.url_private_download,
                 process.env.DOWNLOAD_DIR + "/" + file.id + '_' + file.name,
                 function() {
                     slackClient.api('files.delete?file=' + file.id, function(err, response) {
